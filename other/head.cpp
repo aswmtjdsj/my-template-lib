@@ -13,8 +13,15 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
-#define PB push_back
+#include <complex>
 using namespace std;
+
+#define len(x) (x).size()
+#define PB push_back
+#define VI vector<int> 
+#define pii pair<int, int>
+typedef long long int64;
+
 const int inf = ~0u >> 1;
 const double eps = 1e-8;
 const double pi = acos(-1.0);
