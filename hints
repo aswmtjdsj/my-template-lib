@@ -4,5 +4,5 @@ ssh-keygen # generate private key and public key
 scp ~/.ssh/id_rsa.pub user@target:~/.ssh/authorized_keys(#) -PXXXX # copy pub key to target machine
 chmod 700 ~/.ssh/ # on target machine
 chmod 600 ~/.ssh/authorized_key(#) # on target machine, to avoid secure problems
-eval 'ssh-agent' # run ssh-agent command
+eval ssh-agent bash # run ssh-agent command
 ssh-add
