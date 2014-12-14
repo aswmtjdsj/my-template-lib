@@ -29,10 +29,7 @@ void get_median(int l, int r) {
         if(j == N/2) {
             return ;
         }
-		else if(j > N/2) {
-			if(num[j] == num[N/2]) {
-				return ;
-			}
+        else if(j > N/2) {
             get_median(l, j);
         }
         else {
@@ -43,8 +40,8 @@ void get_median(int l, int r) {
 
 int main() {
 
-	/* 1 */
-	cout << "natural sequence" << endl;
+    /* 1 */
+    cout << "natural sequence" << endl;
 
     for(int i = 0; i < N; i++) {
         num[i] = i;
@@ -67,18 +64,18 @@ int main() {
     cout << "O(N) median time: " << (end - start) / 1000. << "ms." << endl;
     cout << num[N/2] << endl;
     //for(int i = 0; i < N; i++) cout << num[i] << (i==N-1?'\n':' ');
-	
-	/* 2 */
-	cout << "all same sequence" << endl;
 
-	fill(num, num + N, N);
+    /* 2 */
+    cout << "all same sequence" << endl;
+
+    fill(num, num + N, N);
     start = clock();
     sort(num, num + N);
     end = clock();
     cout << "sort time: " << (end - start) / 1000. << "ms." << endl;
     cout << num[N/2] << endl;
 
-	fill(num, num + N, N);
+    fill(num, num + N, N);
     random_shuffle(num, num + N);
     start = clock();
     get_median(0, N-1);
@@ -86,19 +83,19 @@ int main() {
     cout << "O(N) median time: " << (end - start) / 1000. << "ms." << endl;
     cout << num[N/2] << endl;
 
-	/* 3 */
-	cout << "half and half sequence" << endl;
+    /* 3 */
+    cout << "half and half sequence" << endl;
 
-	fill(num, num + N/2, N/2);
-	fill(num + N/2, num + N, N);
+    fill(num, num + N/2, N/2);
+    fill(num + N/2, num + N, N);
     start = clock();
     sort(num, num + N);
     end = clock();
     cout << "sort time: " << (end - start) / 1000. << "ms." << endl;
     cout << num[N/2] << endl;
 
-	fill(num, num + N/2, N/2);
-	fill(num + N/2, num + N, N);
+    fill(num, num + N/2, N/2);
+    fill(num + N/2, num + N, N);
     random_shuffle(num, num + N);
     start = clock();
     get_median(0, N-1);
@@ -106,21 +103,21 @@ int main() {
     cout << "O(N) median time: " << (end - start) / 1000. << "ms." << endl;
     cout << num[N/2] << endl;
 
-	/* 4 */
-	cout << "triple separate sequence" << endl;
+    /* 4 */
+    cout << "triple separate sequence" << endl;
 
-	fill(num, num + N/3, N/3);
-	fill(num + N/3, num + N*2/3, N*2/3);
-	fill(num + N*2/3, num + N, N);
+    fill(num, num + N/3, N/3);
+    fill(num + N/3, num + N*2/3, N*2/3);
+    fill(num + N*2/3, num + N, N);
     start = clock();
     sort(num, num + N);
     end = clock();
     cout << "sort time: " << (end - start) / 1000. << "ms." << endl;
     cout << num[N/2] << endl;
 
-	fill(num, num + N/3, N/3);
-	fill(num + N/3, num + N*2/3, N*2/3);
-	fill(num + N*2/3, num + N, N);
+    fill(num, num + N/3, N/3);
+    fill(num + N/3, num + N*2/3, N*2/3);
+    fill(num + N*2/3, num + N, N);
     random_shuffle(num, num + N);
     start = clock();
     get_median(0, N-1);
