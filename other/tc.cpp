@@ -1,43 +1,73 @@
+/* base IO */
 #include <iostream>
-#include <cstring>
-#include <string>
-#include <vector>
-#include <map>
-#include <set>
-#include <cmath>
 #include <cstdio>
-#include <cstdlib>
-#include <bitset>
-#include <algorithm>
+#include <cstring>
 #include <cctype>
+#include <fstream>
+#include <sstream>
+
+/* data structure */
+#include <vector>
+#include <string>
+#include <set>
+#include <unordered_set>
+#include <map>
+#include <unordered_map>
 #include <queue>
-#include <list>
-#include <deque>
-#include <complex>
-#define PB push_back
-#define PQ priority_queue
-#define len(x) (int)(x).size()
+#include <stack>
+#include <bitset>
+
+/* alrotihm and math */
+#include <algorithm>
+#include <random>
+#include <cmath>
+
+/* run-time */
+#include <cstdlib>
+#include <ctime>
+#include <climits>
+
+/* system dependent */
+#include <sys/time.h>
+
 using namespace std;
 
-const double pi = acos(-1.0);
-const double eps = 1e-9;
-typedef long long LLong;
-typedef pair<int,int> PII;
+#define VI vector<int>
+#define VD vector<double>
+#define PII pair<int, int>
+#define PDD pair<double, double>
+#define PB push_back
+#define MP make_pair
+#define len(x) ((x).size())
+
+const int inf = INT_MAX;
+const long long inf_ll = 0x7f7f7f7f;
+const double eps = 1e-8;
+
 /*
-   Unique Permutation : n! / (n-r)! = PI(n,n-r+1){i}
-   Non_Unique Permutation : n ^ r
-   Unique Combination : n! / r! / (n - r)! = PI(n,n-r+1){i}/ r!
-   Non_Unique Permutation : (n+r-1) / r! / (n - 1)! = PI(n+r-1,n){i} / r!
-   */
-typedef pair <int,int> PII;
-//E,S,W,N
+ * 0 1 2
+ * 3   4
+ * 5 6 7
+ */
+const int bfs_dy[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+const int bfs_dx[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+/*
+ *   3  
+ * 2   0
+ *   1  
+ */
+const int dfs_dy[] = {0, 1, 0, -1};
+const int dfs_dx[] = {1, 0, -1, 0};
+
 PII dir[] = {make_pair(0,1),make_pair(1,0),make_pair(0,-1),make_pair(-1,0)};
-class A
-{
+/* TC HEADER END */
+
+class A {
 	public:
 		;
 };
-int main()
-{
+
+int main() {
 	A a;
 }
