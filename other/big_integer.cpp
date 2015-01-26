@@ -36,20 +36,31 @@ class BigInteger {
         ~BigInteger();
 
         vector <T> get_nums() const;
+        size_t len() const;
         BigInteger & parse(const string &);
         BigInteger & parse(const char *);
         BigInteger & self_handle();
         string rep() const;
 
+        /* + - * / */
         BigInteger operator + (const BigInteger &) const;
         BigInteger & operator += (const BigInteger &);
         BigInteger operator - () const; // Unary
         BigInteger operator - (const BigInteger &) const;
         BigInteger & operator -= (const BigInteger &);
+        BigInteger operator * (const T &) const; // small number
+        friend BigInteger operator * (const T &, const BigInteger &);
         BigInteger operator * (const BigInteger &) const;
+        BigInteger & operator *= (const T &);
         BigInteger & operator *= (const BigInteger &);
         BigInteger operator / (const BigInteger &) const;
         BigInteger & operator /= (const BigInteger &);
+        /* + - * / */
+
+        /* bool */
+        bool operator == (const BigInteger &) const;
+        bool operator > (const BigInteger &) const;
+        bool operator < (const BigInteger &) const;
 
     private:
         T sign;
@@ -118,6 +129,10 @@ vector <T> BigInteger::get_nums() const {
     return nums;
 }
 
+size_t BigInteger::len() const {
+    return nums.size();
+}
+
 /***** parse input *****/
 BigInteger & BigInteger::parse(const string & origin) {
     return parse(origin.c_str());
@@ -126,7 +141,7 @@ BigInteger & BigInteger::parse(const string & origin) {
 
 /***** parse input *****/
 BigInteger & BigInteger::parse(const char * origin) {
-    if(nums.size() != 0) nums.clear();
+    if(len() != 0) nums.clear();
     size_t len = strlen(origin);
     assert(len > 0);
 
@@ -163,11 +178,11 @@ BigInteger & BigInteger::parse(const char * origin) {
 
 /***** handle duplicate 0s and sign *****/
 BigInteger & BigInteger::self_handle() {
-    while(nums.size() > 0 && nums.back() == 0) {
+    while(len() > 0 && nums.back() == 0) {
         // cout << "biubiu: " << nums.back() << endl;
         nums.pop_back();
     }
-    if(nums.size() == 0) {
+    if(len() == 0) {
         nums.push_back(0); // for 0 as BigInteger
         sign = ZERO;
     } else if(sign != NEG) {
@@ -202,25 +217,24 @@ string BigInteger::rep() const {
 
 /***** + operator *****/
 BigInteger BigInteger::operator + (const BigInteger & another) const {
-    BigInteger ret;
-    // cout << sign << ' ' << another.sign << endl;
-
-    if(sign == NEG && another.sign == NEG) {
+    if(sign == NEG && another.sign == NEG) { // -x + (-y)
         return -(-*this + -another);
-    } else if(sign == NEG && another.sign == POS) {
-        return another - *this;
-    } else if(sign == POS && another.sign == NEG) {
+    } else if(sign == NEG && another.sign != NEG) { // -x + y
+        return another - -*this;
+    } else if(sign != NEG && another.sign == NEG) { // x + (-y)
         return *this - -another;
     }
+    assert(sign != NEG && another.sign != NEG);
 
-    size_t pot_len = max(nums.size(), another.nums.size()); // pre alloc
+    BigInteger ret;
+    size_t pot_len = max(len(), another.len()); // pre alloc
     ret.nums.resize(pot_len + 1);
     size_t idx = 0;
     T up = 0;
     for(size_t i = 0; i < pot_len; i++) {
         T cur = 0;
-        cur += (i < nums.size())?(sign==POS?nums[i]:(sign==NEG?-nums[i]:0)):0;
-        cur += (i < another.nums.size())?(another.sign==POS?another.nums[i]:(another.sign==NEG?-another.nums[i]:0)):0;
+        cur += (i < len())?(sign==POS?nums[i]:(sign==NEG?-nums[i]:0)):0;
+        cur += (i < another.len())?(another.sign==POS?another.nums[i]:(another.sign==NEG?-another.nums[i]:0)):0;
         cur += up;
         up = cur / UNIT;
         cur = cur % UNIT;
@@ -254,19 +268,122 @@ BigInteger BigInteger::operator - () const {
 /***** unary - operator *****/
 
 /***** - operator *****/
-BigInteger BigInteger::operator - (const BigInteger &) const {
+BigInteger BigInteger::operator - (const BigInteger & another) const {
+    if(sign == NEG && another.sign == NEG) {
+        return -another - -*this;
+    } else if(sign == NEG && another.sign != NEG) {
+        return -(-*this + another);
+    } else if(sign != NEG && another.sign == NEG) {
+        return *this + -another;
+    }
+    assert(sign != NEG && another.sign != NEG);
+
     BigInteger ret;
-    // TODO
-    return ret;
+    size_t pot_len = max(len(), another.len()); // pre alloc
+    ret.nums.resize(pot_len + 1);
+    size_t idx = 0;
+    T down = 0;
+    for(size_t i = 0; i < pot_len; i++) {
+        T cur = 0;
+        cur += (i < len())?(sign==POS?nums[i]:(sign==NEG?-nums[i]:0)):0;
+        cur -= (i < another.len())?(another.sign==POS?another.nums[i]:(another.sign==NEG?-another.nums[i]:0)):0;
+        cur -= down;
+        // up = cur / UNIT;
+        if(cur < 0) {
+            down++;
+            cur += UNIT;
+        }
+        cur = cur % UNIT;
+        ret.nums[idx++] = cur;
+    } // TODO
+    /*if(down > 0) {
+        ret.nums[idx++] = up;
+        up = 0;
+    }*/
+
+    return ret.self_handle();
 }
 /***** - operator *****/
 
+/***** * operator for big int and small int multiply *****/
+BigInteger BigInteger::operator * (const T & small) const {
+    if(sign == NEG && small < 0) {
+        return (-*this) * (-small);
+    } else if(sign == NEG && small > 0) {
+        return -((-*this) * small);
+    } else if(sign != NEG && small < 0) {
+        return -(*this * (-small));
+    } else if(small == 0) {
+        return BigInteger("0");
+    }
+    BigInteger ret;
+    // TODO
+    return ret.self_handle();
+}
+/***** * operator for big int and small int multiply *****/
+
+/***** * friend operator for small int and big int multiply *****/
+BigInteger operator * (const T & small, const BigInteger & big) {
+    return big * small;
+}
+/***** * friend operator for small int and big int multiply *****/
+
+/***** * operator *****/
+BigInteger BigInteger::operator * (const BigInteger & another) const {
+    BigInteger ret;
+    // TODO
+    return ret.self_handle();
+}
+/***** * operator *****/
+
+/***** bool == operator *****/
+bool BigInteger::operator == (const BigInteger & another) const {
+    if(len() != another.len()) {
+        return false;
+    }
+    if(sign != another.sign) {
+        return false;
+    }
+    size_t length = len();
+    for(size_t i = 0; i < length; i++) {
+        if(nums[i] != another.nums[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+/***** bool == operator *****/
+
 /***** other operator *****/
-/***** operator + for two string *****/
+
+/***** operator + for two string/string and big int ****
+BigInteger operator + (const string & a, const BigInteger & b) {
+    return BigInteger(a) + b;
+}
+
+BigInteger operator + (const BigInteger & a, const string & b) {
+    return a + BigInteger(b);
+}
+
 BigInteger operator + (const string & a, const string & b) {
     return BigInteger(a) + BigInteger(b);
 }
-/***** operator + for two string *****/
+**** operator + for two string/string and big int ****
+
+**** operator - for two string/string and big int ****
+BigInteger operator - (const string & a, const BigInteger & b) {
+    return BigInteger(a) - b;
+}
+
+BigInteger operator - (const BigInteger & a, const string & b) {
+    return a - BigInteger(b);
+}
+
+BigInteger operator - (const string & a, const string & b) {
+    return BigInteger(a) - BigInteger(b);
+}
+**** operator - for two string/string and big int *****/
+
 /***** other operator *****/
 
 void test_parse() {
@@ -277,17 +394,45 @@ void test_parse() {
     cout << "output: " << output.rep() << endl;
     cout << "-big: " << (-big).rep() << endl;
 }
+
 void test_add() {
     string a, b;
     while(cin >> a >> b) {
-        BigInteger sum = a + b;
+        BigInteger sum = BigInteger(a) + BigInteger(b);
         cout << sum.rep() << endl;
+    }
+}
+
+void test_sub() {
+    string a, b;
+    while(cin >> a >> b) {
+        BigInteger sum = BigInteger(a) - BigInteger(b);
+        cout << sum.rep() << endl;
+    }
+}
+
+void test_mult() {
+    string a;
+    short b;
+    while(cin >> a >> b) {
+        BigInteger prod = BigInteger(a) * b;
+        cout << prod.rep() << endl;
+    }
+}
+
+void test_equal() {
+    string a, b;
+    while(cin >> a >> b) {
+        cout << (BigInteger(a) == BigInteger(b)) << endl;
     }
 }
 
 void unit_test() {
     // test_parse();
-    test_add();
+    // test_add();
+    // test_sub();
+    test_mult();
+    // test_equal();
 }
 
 int main(int argc, char ** argv) {

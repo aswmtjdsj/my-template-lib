@@ -1,5 +1,12 @@
-basic:
-	g++ -g -Wall -O3 --std=c++0x big_integer.cpp -o big_integer
+asmly:
+	g++ -g -Wall -O2 --std=c++0x big_integer.cpp -S
+base:
+	# g++ -g -Wall -O2 --std=c++0x big_integer.cpp -o big_integer
+	g++ -g -Wall -O2 --std=c++0x matrix.cpp -o matrix 
+	# ./big_integer
+	./matrix
+comp:
+	g++ -g -Wall -O2 --std=c++0x big_integer.cpp -o big_integer
 	time -p ./big_integer < big.in > test.out
 	time -p python big_test.py < big.in > big.out
 prof:
