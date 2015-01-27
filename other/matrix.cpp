@@ -10,6 +10,8 @@
 #include <vector>
 #include <utility>
 
+#include <typeinfo>
+
 using namespace std;
 
 template <typename T>
@@ -33,6 +35,8 @@ class Matrix {
         size_t row_size() const;
         size_t col_size() const;
 
+        static Matrix<T> unit(const size_t &);
+ 
         vector <T> operator ()(const size_t &) const;
         vector <T> & operator ()(const size_t &);
         vector <T> operator [](const size_t &) const;
@@ -42,7 +46,7 @@ class Matrix {
 
         Matrix<T> operator * (const Matrix<T> &) const;
         Matrix<T> operator * (const T &) const;
-        Matrix<T> operator ^ (const T &) const;
+        Matrix<T> operator ^ (const long long &) const;
 
         void print(const string & prompt = "") const;
 
@@ -107,6 +111,16 @@ Matrix<T>::~Matrix() {
 }
 /***** destructor *****/
 
+/***** = operator *****/
+template <typename T>
+Matrix<T> & Matrix<T>::operator = (const Matrix<T> & another) {
+    // *this = Matrix<T>(another); // why this lead to infinite recursion
+    // <=== obviously
+    _ = vector < vector <T> > (another._);
+    return *this;
+}
+/***** = operator *****/
+
 template <typename T>
 void Matrix<T>::check() const {
     size_t r = row_size();
@@ -124,6 +138,15 @@ template <typename T>
 size_t Matrix<T>::col_size() const {
     assert(row_size() > 0);
     return _[0].size();
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::unit(const size_t & size) {
+    Matrix<T> ret(size, size);
+    for(size_t i = 0; i < size; i++) {
+        ret(i, i) = 1;
+    }
+    return ret;
 }
 
 /***** (i) operator *****/
@@ -196,7 +219,7 @@ Matrix<T> Matrix<T>::operator * (const T & _s) const {
     size_t r = row_size, c = col_size();
     for(size_t i = 0; i < r; i++) {
         for(size_t j = 0; j < c; j++) {
-            ret(i, j) *= _s;
+            ret(i, j) = ret(i, j) * _s;
         }
     }
     return ret;
@@ -205,9 +228,19 @@ Matrix<T> Matrix<T>::operator * (const T & _s) const {
 
 /***** ^ operator *****/
 template <typename T>
-Matrix<T> Matrix<T>::operator ^ (const T &) const {
-    Matrix<T> ret;
-    // TODO
+Matrix<T> Matrix<T>::operator ^ (const long long & _pow) const { // cannot use template
+    size_t r = row_size(), c = col_size();
+    assert(r == c); // symmetric matrix
+    Matrix<T> ret = Matrix<T>::unit(r);
+    Matrix<T> m = *this;
+    long long pow = _pow;
+    while(pow > 0ll) {
+        if(pow & 1ll) {
+            ret = m * ret;
+        }
+        m = m * m;
+        pow >>= 1;
+    }
     return ret;
 }
 /***** ^ operator *****/
@@ -235,10 +268,14 @@ void test_construct() {
     v[1].push_back(2);
     v[1].push_back(2);
 
+    (Matrix<int>::unit(10)).print("size_10 unit");
+
     Matrix <int> m(v), m2(std::move(m));
     m.print("m");
     m2.print("m2");
-    (m2 * m2).print("m2 * m2");
+    (m2 * m2 * m2).print("m2 * m2 * m2");
+    
+    (m2 ^ 3).print("m2^3");
 }
 
 void unit_test() {
