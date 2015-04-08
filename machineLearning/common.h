@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <climits>
+#include <cassert>
 
 /* system dependent */
 #include <sys/time.h>

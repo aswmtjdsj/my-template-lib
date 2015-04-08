@@ -16,44 +16,59 @@ namespace ML {
                 DecisionTree() {
                 }
 
-                DecisionTree(const size_t & _ds, const size_t & _fs) {
-                    // TODO
-                }
-
                 ~DecisionTree() {
-                    _features.clear();
-                    _dimensions.clear();
-                    _labels.clear();
-                    _selected.clear();
                 }
 
-                // row: ds, col: fs
-                void setDataSize(const size_t & _s) {
-                    _data_size = _s;
-                    _features.reserve(_data_size);
-                    _dimensions.reserve(_data_size);
-                    _labels.reserve(_data_size);
-                }
+                // discrete features
+                // vs continuous features
+                void buildTree(const vector < vector <T1> > & feature_set, const vector < T2 > & label_set) {
+                    // row: ds, col: fs
+                    size_t data_size, feature_size; 
+                    vector < bool > selected; // has been selected as branch feature or not
 
-                void setFeatureSize(const size_t & _s) {
-                    _feature_size = _s;
-                    _selected = vector < bool > (_feature_size, false);
-                }
+                    data_size = feature_set.size();
+                    assert(data_size > 0);
+                    feature_size = feature_set[0].size();
+                    selected.resize(feature_size, false);
 
-                void loadFeature(const vector <T1> & _f, const T2 & _l) {
-                    _features.push_back(_f);
-                    for(size_t _idx = 0; _idx < _feature_size; _idx++) {
-                        _dimensions.insert(_f[_idx]);
-                    }
-                    _labels.push_back(_l);
+                    // build tree
+                    _root = _build(feature_set, label_set, selected);
+#ifdef DEBUG
+                    cerr << _root.getNodeType() << endl;
+                    cerr << _root.getFeatureId() << endl;
+#endif
+
                 }
+#ifdef DEBUG
+                void unitTest() {
+                    cerr << "Bahhh!" << endl;
+                }
+#endif
 
             private:
-                size_t _feature_size, _data_size;
-                vector < vector <T1> > _features;
-                vector < set <T1> > _dimensions; // dimension of every feature
-                vector < T2 > _labels;
-                vector < bool > _selected; // has been seleted as branch feature or not
+
+                TreeNode < T1 > _build(const vector < vector <T1> > & feature_set, const vector < T2 > & label_set, vector < bool > & selected) {
+                    TreeNode < T1 > temp;
+                    
+                    // check input 
+                    // check output
+                    set < T2 > output_set;
+                    for(size_t fdx = 0; fdx < selected.size(); fdx++) { // maybe wrong
+                        if(selected[fdx] != false) {
+                            temp.addInstance(fdx);
+                            // output_set.insert(label_set[fdx]);
+                        }
+                    }
+                    if(output_set.size() == 0) {
+                        // TODO
+                        temp.setNodeType(AOS);
+                    }
+                    // find maximum information gain
+
+                    return temp;
+                }
+
+                TreeNode < T1 > _root;
         };
 }
 
