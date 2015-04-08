@@ -112,7 +112,10 @@ BigInteger::BigInteger(BigInteger && another) {
 
 /***** assign operator *****/
 BigInteger & BigInteger::operator = (const BigInteger & another) {
-    *this = BigInteger(another);
+    // *this = BigInteger(another);
+    // sucks!
+    sign = another.sign;
+    nums = another.nums;
     return *this;
 }
 /***** assign operator *****/
@@ -150,6 +153,7 @@ BigInteger & BigInteger::parse(const char * origin) {
     size_t idx = 0;
 
     T i = len - 1;
+    assert(i < (1ll << ((sizeof(T) * 8) - 1)));
     do { // stored in reverse order
         T temp = 0;
         T s = max(i - 3, 0); // dependent to 10000
@@ -354,6 +358,53 @@ bool BigInteger::operator == (const BigInteger & another) const {
 }
 /***** bool == operator *****/
 
+/***** bool < operator *****/
+bool BigInteger::operator < (const BigInteger & another) const {
+    if(sign == NEG && another.sign != NEG) return true;
+    if(sign == POS && another.sign != POS) return false;
+    if(another.sign == NEG) return (-*this) > (-another); // NEG to POS
+
+    // not NEG now
+    if(len() != another.len()) return len() < another.len();
+
+    // real compare
+    T legacy = 0;
+    for(size_t i = len(); i > 0; i--) {
+        T a = nums[i-1] + legacy * UNIT, b = another.nums[i-1];
+        if(a < b) return true;
+        else if(a > b) return false;
+        else {
+            legacy = a - b;
+        }
+    }
+    return false;
+}
+/***** bool < operator *****/
+
+/***** bool > operator *****/
+bool BigInteger::operator > (const BigInteger & another) const {
+    if(sign == NEG && another.sign != NEG) return false;
+    if(sign == POS && another.sign != POS) return true;
+    // same symbol 
+    if(another.sign == NEG) return (-*this) < (-another);
+
+    // not NEG now
+    if(len() != another.len()) return len() > another.len();
+
+    // real compare
+    T legacy = 0;
+    for(size_t i = len(); i > 0; i--) {
+        T a = nums[i-1] + legacy * UNIT, b = another.nums[i-1];
+        if(a > b) return true;
+        else if(a < b) return false;
+        else {
+            legacy = a - b;
+        }
+    }
+    return false;
+}
+/***** bool > operator *****/
+
 /***** other operator *****/
 
 /***** operator + for two string/string and big int ****
@@ -395,6 +446,11 @@ void test_parse() {
     cout << "-big: " << (-big).rep() << endl;
 }
 
+void test_assign() {
+    BigInteger a("0"), b = a;
+    b = b;
+}
+
 void test_add() {
     string a, b;
     while(cin >> a >> b) {
@@ -427,12 +483,22 @@ void test_equal() {
     }
 }
 
+void test_comp() {
+    string a, b;
+    while(cin >> a >> b) {
+        cout << (BigInteger(a) < BigInteger(b)) << endl;
+        // (BigInteger(a) < BigInteger(b));
+    }
+}
+
 void unit_test() {
+    // test_assign();
     // test_parse();
     // test_add();
     // test_sub();
-    test_mult();
+    // test_mult();
     // test_equal();
+    test_comp();
 }
 
 int main(int argc, char ** argv) {
