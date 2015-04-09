@@ -7,7 +7,7 @@ using namespace std;
 
 namespace ML {
     typedef enum {UIN, AIS, AOS, MIG} node_type;
-    // unsize_tialized, all input the same, all output the same, maximum information gain -> size_ternal nodes
+    // un-initialized, all input the same, all output the same, maximum information gain -> size_ternal nodes
 
     template <typename T>
         class TreeNode {
@@ -17,7 +17,7 @@ namespace ML {
                     _node_type = UIN;
                     _feature_id = -1;
                     _values.clear();
-                    _children.clear();
+                    _num_of_instances = 0;
                 }
 
                 void addChild(const TreeNode <T> & child, const T & value) {
@@ -33,8 +33,8 @@ namespace ML {
                     _node_type = type;
                 }
 
-                void addInstance(const size_t & id) {
-                    _instance_ids.push_back(id);
+                void setNumInstances(const size_t & num) {
+                    _num_of_instances = num;
                 }
 
                 vector < TreeNode < T > > getChildren() {
@@ -53,8 +53,8 @@ namespace ML {
                     return _node_type;
                 }
 
-                vector < size_t > getInstanceIds() {
-                    return _instance_ids;
+                size_t getNumInstances() {
+                    return _num_of_instances;
                 }
 
             private:
@@ -62,7 +62,7 @@ namespace ML {
                 size_t _feature_id;
                 node_type _node_type;
                 vector < T > _values; // discrete split
-                vector < size_t > _instance_ids;
+                size_t _num_of_instances;
         };
 }
 
