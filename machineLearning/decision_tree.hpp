@@ -49,6 +49,13 @@ namespace ML {
 
                 TreeNode < T1 > _build(const vector < vector <T1> > & feature_set, const vector < T2 > & label_set, vector < bool > & selected) {
                     TreeNode < T1 > temp;
+#ifdef DEBUG
+                    for(auto d: feature_set) {
+                        for(auto f: d) {
+                            cerr << f << ", ";
+                        } cerr << endl;
+                    }
+#endif
 
                     // label->size: data size
                     // select->size: feature size
@@ -59,7 +66,7 @@ namespace ML {
                     // check input 
                     bool feature_the_same = true;
                     for(size_t fdx = 0; fdx < selected.size(); fdx++) {
-                        if(selected[fdx] != false) {
+                        if(selected[fdx] == false) {
                             set < T1 > cur_values;
                             for(size_t ddx = 0; ddx < label_set.size(); ddx++) {
                                 cur_values.insert(feature_set[ddx][fdx]);
@@ -88,15 +95,62 @@ namespace ML {
                         return temp;
                     }
 
-                    temp.setNodeType(MIG);
                     // find maximum information gain
+                    temp.setNodeType(MIG);
+
+                    map < T1, int > count_label;
+                    for(auto l: label_set) {
+                        count_label[l]++;
+                    }
+
+                    // H(Y) = - sigma(p(y) * log(p(y))
+                    double h_y = 0;
+                    for(auto c: count_label) {
+                        double p = c.second * 1. / label_set.size();
+                        h_y += p * log(p);
+                    }
+                    h_y = - h_y;
+
+#ifdef DEBUG
+                    cerr << "H(Y): " << h_y << endl;
+#endif
+
                     int best_feature = -1;
+                    double best_ig = -1.;
                     for(size_t fdx = 0; fdx < selected.size(); fdx++) {
-                        if(selected[fdx] != false) {
+                        if(selected[fdx] == false) {
                             // TODO
+                            // IG(Xi) = H(Y) - H(Y|Xi)
+                            // H(Y) = - sigma(p(y) * log(p(y))
+                            // H(Y|Xi) = sigma(p(xij) * H(Y|xij))
+                            // = sigma(p(xij) * [- sigma(p(y|xij) * log(p(y|xij)))]
+                            // = -sigma"y, xij"(p(xij, y) * log(p(y|xij)))
+                            // = -sigma"y, xij"(p(xij, y) * log(p(xij, y)/p(xij)))
+                            map < T1, map < T2, int > > count_value_with_label;
+                            for(size_t ddx = 0; ddx < label_set.size(); ddx++) {
+                                count_value_with_label[feature_set[fdx][ddx]][label_set[ddx]]++;
+                            }
+                            double h_y_x = 0.;
+                            for(auto x: count_value_with_label) {
+                                double p_x_with_no_fraction = x.second.size() * 1.;
+                                for(auto x_y: x.second) {
+                                    double p_x_y_w_n_f = x_y.second * 1. / label_set.size();
+                                    h_y_x += p_x_y_w_n_f * log(p_x_y_w_n_f / p_x_with_no_fraction);
+                                }
+                            }
+                            h_y_x = - h_y_x;
+                            double ig = h_y - h_y_x;
+#ifdef DEBUG
+                            cerr << "IG: " << h_y << endl;
+#endif
+                            if(best_ig < ig) {
+                                best_ig = ig;
+                                best_feature = fdx;
+                            }
                         }
                     }
 
+                    assert(best_feature != -1);
                     // split
                     temp.setFeatureId(best_feature);
 
